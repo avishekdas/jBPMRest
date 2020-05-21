@@ -77,8 +77,8 @@ public class JbpmService implements IJbpmService {
 		ProcessServicesClient processClient = kieServicesClient.getServicesClient(ProcessServicesClient.class);
 		
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("myurl", "http://test.com");
-		params.put("mymethod", "GET");
+		params.put("myurl", "http://3.7.152.131:4040/api/v1/appointments/");
+		params.put("mymethod", "PUT");
 		if(apptData == null) {
 			params.put("mypatientname", "john");
 			params.put("mydoctorname", "Dr.D");

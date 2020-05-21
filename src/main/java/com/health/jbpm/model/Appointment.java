@@ -17,7 +17,7 @@ public class Appointment {
 	@Id
 	@Column
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Long id;
 	@Column
 	private String patientName;
 	@Column
