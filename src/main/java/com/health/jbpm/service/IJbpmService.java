@@ -1,6 +1,6 @@
 package com.health.jbpm.service;
 
-import com.health.jbpm.model.AppointmentDTO;
+import com.health.jbpm.model.Appointment;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -9,7 +9,7 @@ public interface IJbpmService
 {
 	Flux<com.health.jbpm.model.Process> getProcessList();
     
-    Mono<Long> startProcessInstance(String containerId, String processId, AppointmentDTO apptData);
+    Mono<Long> startProcessInstance(String containerId, String processId, Appointment apptData);
     
     Mono<Long> getTask();
     

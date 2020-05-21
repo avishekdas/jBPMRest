@@ -65,7 +65,7 @@ public class JbpmController {
     	appt.setAppointmentDate(apptData.getApptdate());
     	apptRepo.save(appt);
     	
-    	Mono<Long> e = jbpmService.startProcessInstance(containerid, processid, apptData);
+    	Mono<Long> e = jbpmService.startProcessInstance(containerid, processid, appt);
     	
 		return new ResponseEntity<Mono<Long>>(e, HttpStatus.CREATED);
 	}

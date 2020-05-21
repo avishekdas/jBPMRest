@@ -24,7 +24,7 @@ import org.kie.server.client.QueryServicesClient;
 import org.kie.server.client.UserTaskServicesClient;
 import org.springframework.stereotype.Service;
 
-import com.health.jbpm.model.AppointmentDTO;
+import com.health.jbpm.model.Appointment;
 import com.health.jbpm.model.InputParams;
 
 import reactor.core.publisher.Flux;
@@ -69,26 +69,21 @@ public class JbpmService implements IJbpmService {
 	}
 
 	@Override
-	public Mono<Long> startProcessInstance(String containerId, String processId, AppointmentDTO apptData) {
+	public Mono<Long> startProcessInstance(String containerId, String processId, Appointment apptData) {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
 		conf.setMarshallingFormat(FORMAT);
 		kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
 
 		ProcessServicesClient processClient = kieServicesClient.getServicesClient(ProcessServicesClient.class);
-		
+
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("myurl", "http://3.7.152.131:4040/api/v1/appointments/");
+		params.put("myurl", "http://3.7.152.131:4040/api/v1/appointments/" + apptData.getId());
 		params.put("mymethod", "PUT");
 		params.put("mycontenttype", "application/json");
-		if(apptData == null) {
-			params.put("mypatientname", "john");
-			params.put("mydoctorname", "Dr.D");
-			params.put("myissue", "Headache");
-		} else {
-			params.put("mypatientname", apptData.getPatientName());
-			params.put("mydoctorname", apptData.getDoctorName());
-			params.put("myissue", apptData.getIssue());
-		}
+
+		params.put("mypatientname", apptData.getPatientName());
+		params.put("mydoctorname", apptData.getDoctorName());
+		params.put("myissue", apptData.getIssue());
 		Long processInstanceId = processClient.startProcess(containerId, processId, params);
 
 		Mono<Long> data = Mono.just(processInstanceId);
@@ -108,7 +103,7 @@ public class JbpmService implements IJbpmService {
 		Mono<Long> data = Mono.just(taskId);
 		return data;
 	}
-	
+
 	@Override
 	public Mono<String> activateTask(String containerId, Long taskId) {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
@@ -153,7 +148,7 @@ public class JbpmService implements IJbpmService {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
 		conf.setMarshallingFormat(FORMAT);
 		kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
-		
+
 		KieContainerResourceList containersList = kieServicesClient.listContainers().getResult();
 		List<KieContainerResource> kieContainers = containersList.getContainers();
 		System.out.println("Available containers: ");
@@ -166,7 +161,7 @@ public class JbpmService implements IJbpmService {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
 		conf.setMarshallingFormat(FORMAT);
 		kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
-		
+
 		// Filter containers by releaseId "org.example:container:1.0.0.Final" and status
 		// FAILED
 		KieContainerResourceFilter filter = new KieContainerResourceFilter.Builder()
@@ -187,7 +182,7 @@ public class JbpmService implements IJbpmService {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
 		conf.setMarshallingFormat(FORMAT);
 		kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
-		
+
 		System.out.println("== Disposing and creating containers ==");
 
 		// Retrieve list of KIE containers
@@ -224,10 +219,11 @@ public class JbpmService implements IJbpmService {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
 		conf.setMarshallingFormat(FORMAT);
 		kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
-		
+
 		System.out.println("== Listing Business Processes ==");
 		QueryServicesClient queryClient = kieServicesClient.getServicesClient(QueryServicesClient.class);
-		List<ProcessDefinition> findProcessesByContainerId = queryClient.findProcessesByContainerId(containerid, 0, 1000);
+		List<ProcessDefinition> findProcessesByContainerId = queryClient.findProcessesByContainerId(containerid, 0,
+				1000);
 		for (ProcessDefinition def : findProcessesByContainerId) {
 			System.out.println(def.getName() + " - " + def.getId() + " v" + def.getVersion());
 		}
@@ -250,7 +246,7 @@ public class JbpmService implements IJbpmService {
 		// Start the process with custom class
 		processServicesClient.startProcess(containerId, processId, variables);
 	}
-	
+
 	public void executeCustomQuery(String QUERY_NAME) {
 		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
 		conf.setMarshallingFormat(FORMAT);
@@ -260,10 +256,8 @@ public class JbpmService implements IJbpmService {
 		QueryServicesClient queryClient = kieServicesClient.getServicesClient(QueryServicesClient.class);
 
 		// Build the query
-		QueryDefinition queryDefinition = QueryDefinition.builder().name(QUERY_NAME)
-		        .expression("select * from Task t")
-		        .source("java:jboss/datasources/ExampleDS")
-		        .target("TASK").build();
+		QueryDefinition queryDefinition = QueryDefinition.builder().name(QUERY_NAME).expression("select * from Task t")
+				.source("java:jboss/datasources/ExampleDS").target("TASK").build();
 
 		// Specify that two queries cannot have the same name
 		queryClient.unregisterQuery(QUERY_NAME);
@@ -271,12 +265,14 @@ public class JbpmService implements IJbpmService {
 		// Register the query
 		queryClient.registerQuery(queryDefinition);
 
-		// Execute the query with parameters: query name, mapping type (to map the fields to an object), page number, page size, and return type
-		List<TaskInstance> query = queryClient.query(QUERY_NAME, QueryServicesClient.QUERY_MAP_TASK, 0, 100, TaskInstance.class);
+		// Execute the query with parameters: query name, mapping type (to map the
+		// fields to an object), page number, page size, and return type
+		List<TaskInstance> query = queryClient.query(QUERY_NAME, QueryServicesClient.QUERY_MAP_TASK, 0, 100,
+				TaskInstance.class);
 
 		// Read the result
 		for (TaskInstance taskInstance : query) {
-		    System.out.println(taskInstance);
+			System.out.println(taskInstance);
 		}
 	}
 

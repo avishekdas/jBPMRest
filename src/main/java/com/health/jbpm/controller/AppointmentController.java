@@ -51,9 +51,10 @@ public class AppointmentController {
 		Appointment appt = apptRepo.findById(id)
 				.orElseThrow(() -> new Exception("Appointment not found for this id :: " + id));
 
-		appt.setPatientName(apptDetails.getPatientName());
-		appt.setDoctorName(apptDetails.getDoctorName());
-		appt.setIssue(apptDetails.getIssue());
+//		appt.setPatientName(apptDetails.getPatientName());
+//		appt.setDoctorName(apptDetails.getDoctorName());
+//		appt.setIssue(apptDetails.getIssue());
+		appt.setReferenceNumber(apptDetails.getReferenceNumber());
 		final Appointment updatedAppointment = apptRepo.save(appt);
 		return ResponseEntity.ok(updatedAppointment);
 	}
