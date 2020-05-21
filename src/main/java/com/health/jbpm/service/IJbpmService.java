@@ -13,6 +13,8 @@ public interface IJbpmService
     
     Mono<Long> getTask();
     
+    Mono<String> activateTask(String containerId, Long taskId);
+    
     Mono<String> startTask(String containerId, Long taskId);
     
     Mono<String> completeTask(String containerId, Long taskId);

@@ -107,6 +107,19 @@ public class JbpmService implements IJbpmService {
 		Mono<Long> data = Mono.just(taskId);
 		return data;
 	}
+	
+	@Override
+	public Mono<String> activateTask(String containerId, Long taskId) {
+		conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
+		conf.setMarshallingFormat(FORMAT);
+		kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
+
+		UserTaskServicesClient taskClient = kieServicesClient.getServicesClient(UserTaskServicesClient.class);
+		taskClient.activateTask(containerId, taskId, USER);
+
+		Mono<String> data = Mono.just("Started Task" + taskId);
+		return data;
+	}
 
 	@Override
 	public Mono<String> startTask(String containerId, Long taskId) {
